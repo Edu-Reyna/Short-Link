@@ -4,6 +4,7 @@ import com.proyecto.shortURL.Entities.Usuarios;
 import com.proyecto.shortURL.Repositories.IUsuarioRepository;
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @Service
 public class UsuariosServices implements IUsuariosServices {
 
+    @Autowired
     private IUsuarioRepository usuarioRepository;
 
 
@@ -21,6 +23,7 @@ public class UsuariosServices implements IUsuariosServices {
 
     @Override
     public void editUsuario(Usuarios usuario) {
+
         usuarioRepository.save(usuario);
     }
 

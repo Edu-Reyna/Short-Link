@@ -14,7 +14,7 @@ public interface ILinkServices {
     public String getLink(String link);
 
     //Crear un link
-    public Link saveLink(Link link);
+    public String saveLink(Link link);
 
     //Borrar un link
     public void deleteLink(Long id);

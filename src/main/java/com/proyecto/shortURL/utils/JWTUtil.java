@@ -102,6 +102,10 @@ public class JWTUtil {
         Claims claims = Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(key))
                 .parseClaimsJws(jwt).getBody();
 
-        return (Usuarios) claims;
+        Usuarios usuario = new Usuarios();
+        usuario.setId_usuario(Long.parseLong(claims.getId()));
+        usuario.setRole(Role.valueOf(claims.get("role", String.class)));
+
+        return usuario;
     }
 }

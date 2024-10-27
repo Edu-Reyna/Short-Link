@@ -25,13 +25,14 @@ public class UsuariosController {
     private JWTUtil jwtUtil;
 
     @PostMapping("/usuarios/registrar")
-    public void registrarUsuario(@RequestBody Usuarios usuario) {
+    public String registrarUsuario(@RequestBody Usuarios usuario) {
 
         Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
         String hash = argon2.hash(1, 1024, 1, usuario.getPassword());
         usuario.setPassword(hash);
 
         usuariosServices.saveUsuario(usuario);
+        return "Usuario registrado exitosamente";
     }
 
     private boolean validarToken(String token) {
@@ -39,7 +40,7 @@ public class UsuariosController {
         return (usuarioId != null);
     }
 
-    @GetMapping("/usuarios")
+    @GetMapping("/usuarios/listar")
     public List<Usuarios> getUsuarios(@RequestHeader("Authorization") String token) {
         if (!validarToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
@@ -48,18 +49,24 @@ public class UsuariosController {
     }
 
     @DeleteMapping("/usuarios/{id}")
-    public void deleteUsuario(@PathVariable("id") Long id, @RequestHeader("Authorization") String token) {
+    public String deleteUsuario(@PathVariable("id") Long id, @RequestHeader("Authorization") String token) {
         if (!validarToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
         usuariosServices.deleteUsuario(id);
+        return "Usuario eliminado exitosamente";
     }
     
     @PutMapping("/usuarios/editar")
-    public void editUsuario( @RequestBody Usuarios usuario, @RequestHeader("Authorization") String token) {
+    public String editUsuario( @RequestBody Usuarios usuario, @RequestHeader("Authorization") String token) {
         if (!validarToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
+        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+        String hash = argon2.hash(1, 1024, 1, usuario.getPassword());
+        usuario.setPassword(hash);
+
         usuariosServices.editUsuario(usuario);
+        return "Usuario editado exitosamente";
     }
 }

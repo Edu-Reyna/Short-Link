@@ -4,9 +4,7 @@ import com.proyecto.shortURL.Entities.Usuarios;
 import com.proyecto.shortURL.Services.IUsuariosServices;
 import com.proyecto.shortURL.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class AuthController {
@@ -25,8 +23,13 @@ public class AuthController {
             return jwtUtil.create(String.valueOf(usuarioLogueado.getId_usuario()), usuarioLogueado.getEmail(),
                     usuarioLogueado.getRole());
         }
-        return "FAIL";
+        return "Credenciales incorrectas";
     }
 
+    @GetMapping("/role")
+    public String role(@RequestHeader("Authorization") String token) {
+
+        return jwtUtil.validarDatosUsuario(token).getRole().toString();
+    }
 
 }

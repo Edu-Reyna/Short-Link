@@ -23,20 +23,5 @@ public class Conversion {
         return shortString.reverse().toString();
     }
 
-    public long decodeUrl(String input) {
-        var characters = input.toCharArray();
-        var length = characters.length;
-
-        long decoded = 0;
-        for (int i = 0; i < length; i++) {
-            int index = base62.indexOf(characters[i]);
-            if (index == -1) {
-                throw new IllegalArgumentException("Invalid character in input: " + characters[i]);
-            }
-            decoded = decoded * 62 + index;
-        }
-        return decoded;
-    }
-
 }
 

@@ -1,5 +1,6 @@
 package com.proyecto.shortURL.Entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +15,6 @@ public class Usuarios {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_usuario;
 
-    private String username;
     private String name;
     private String surname;
 
@@ -25,6 +25,7 @@ public class Usuarios {
     private String email;
 
     @OneToMany(mappedBy = "usuario")
+    @JsonManagedReference
     private List<Link> listaLinks;
 
     @Column

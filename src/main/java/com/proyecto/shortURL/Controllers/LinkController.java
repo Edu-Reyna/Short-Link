@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @AllArgsConstructor @NoArgsConstructor
@@ -31,28 +33,48 @@ public class LinkController {
     }
 
     @PostMapping("/link/save")
-    public Link saveLink(@RequestBody Link link, @RequestHeader("Authorization") String token) {
-        if (!validarToken(token)) {
+    public String saveLink(@RequestBody Link link) {
+        var creacion = new Date();
+        link.setCreationDate(creacion);
             link.setUsuario(null);
-        }
-        return iLinkServices.saveLink(link);
-
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(creacion);
+            calendar.add(Calendar.DAY_OF_YEAR, 7);
+            link.setExpirationDate(calendar.getTime());
+            return iLinkServices.saveLink(link);
     }
 
-    @PostMapping("/link/delete/{id}")
-    public void deleteLink(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+   @PostMapping("/link/save/user")
+    public String saveLink(@RequestBody Link link, @RequestHeader("Authorization") String token) {
+        if (!validarToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+        var creacion = new Date();
+        link.setCreationDate(creacion);
+        Usuarios usuarioId = jwtUtil.validarDatosUsuario(token);
+        link.setUsuario(usuarioId);
+        iLinkServices.saveLink(link);
+        return "Link guardado exitosamente";
+    }
+
+    @DeleteMapping("/link/delete/{id}")
+    public String deleteLink(@PathVariable("id") Long id, @RequestHeader("Authorization") String token) {
         if (!validarToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         };
         iLinkServices.deleteLink(id);
+        return "Link eliminado exitosamente";
     }
 
-    @PostMapping("/link/edit")
-    public Link editLink(@RequestBody Link link, @RequestHeader("Authorization") String token) {
+    @PutMapping("/link/edit")
+    public String editLink(@RequestBody Link link, @RequestHeader("Authorization") String token) {
         if (!validarToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
-        return iLinkServices.editLink(link);
+        Usuarios usuarioId = jwtUtil.validarDatosUsuario(token);
+        link.setUsuario(usuarioId);
+        iLinkServices.editLink(link);
+        return "Link editado exitosamente";
     }
 
     @GetMapping(value = "/link/list")
@@ -64,7 +86,8 @@ public class LinkController {
         return iLinkServices.getLinks(usuarioId);
     }
 
-    @GetMapping("{link}")
+
+    @GetMapping("/link/{link}")
     public ResponseEntity<Void> getLink(@PathVariable String link) {
         String link1 = iLinkServices.getLink(link);
         if (link1 == null) {

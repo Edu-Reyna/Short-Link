@@ -5,6 +5,7 @@ import com.proyecto.shortURL.Entities.Usuarios;
 import com.proyecto.shortURL.Repositories.ILinkRepository;
 import com.proyecto.shortURL.utils.Conversion;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,33 +13,37 @@ import java.util.List;
 @Service
 public class LinkServices implements ILinkServices {
 
+    @Autowired
     private ILinkRepository linkRepository;
 
+    @Autowired
     private Conversion conversion;
-
 
     @Override
     public List<Link> getLinks(Usuarios usuario) {
-        return linkRepository.findAll().stream().filter(link -> link.getUsuario().equals(usuario)).toList();
+        return linkRepository.findAll().stream().filter(link -> link.getUsuario() != null && link.getUsuario().getId_usuario().equals(usuario.getId_usuario())).toList();
     }
 
     @Override
     public String getLink(String link) {
-        var id = conversion.decodeUrl(link);
-        var entity = linkRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("There is no entity with " + link));
-
+        var url = linkRepository.findAll().stream().filter(l -> l.getShortUrl().equals(link)).findFirst();
+        if (url.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        var entity = url.get();
         return entity.getUrl();
     }
 
     @Override
-    public Link saveLink(Link link) {
+    public String saveLink(Link link) {
         var entity = linkRepository.save(link);
 
         String converted = conversion.encodeUrl(entity.getId());
         entity.setShortUrl(converted);
 
-        return linkRepository.save(entity);
+        linkRepository.save(entity);
+
+        return entity.getShortUrl();
     }
 
     @Override
